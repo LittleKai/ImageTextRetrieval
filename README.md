@@ -8,4 +8,4 @@ An image search application based on textual features input by users through the
 
 ![Demo Image 1](Demo/1.png)
 
-![Demo Image 2](Demo/2.png)
+
