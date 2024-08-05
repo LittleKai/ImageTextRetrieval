@@ -1,16 +1,11 @@
-# video_search_app
+# Image Text Retrieval
 
-A new Flutter project.
+An image search application based on textual features input by users through the UI
 
-## Getting Started
+** Note: This project is still under development.
 
-This project is a starting point for a Flutter application.
+## Demo Images of the Application
 
-A few resources to get you started if this is your first Flutter project:
+![Demo Image 1](Demo/1.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Demo Image 2](Demo/2.png)
