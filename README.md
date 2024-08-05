@@ -1,4 +1,5 @@
 # Image Text Retrieval
+![Demo Image 1](Demo/1.png)
 
 An image search application based on textual features input by users through the UI.
 
@@ -30,10 +31,8 @@ Frontend Features:
 
 Responsive design using Flutter with cross-platform compatibility (iOS, Android, PC, Web)
 
-# Future plans: With a larger dataset, data will be stored in MongoDB and support queries through ElasticSearch. Additional models and features will be incorporated to improve search accuracy. 
+# Future plans: 
+With a larger dataset, data will be stored in MongoDB and support queries through ElasticSearch. Additional models and features will be incorporated to improve search accuracy. 
 
-# Demo Images of the Application
-
-![Demo Image 1](Demo/1.png)
 
 
