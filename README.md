@@ -14,9 +14,8 @@ The information includes audio information, text, people, objects, location, and
 Image Text Retrieval System:
 
 - Utilizes CLIP (Contrastive Language-Image Pre-training) model for image-text matching. 
-- Implements a Flask backend deployed on Google Colab. 
+- Implements a Flask backend deployed on Kaggle. 
 - Integrates with a Flutter frontend for user interaction. 
-- Implements a Flask backend deployed on Google Colab.
 
 Search Functionality: 
 
@@ -35,12 +34,13 @@ Backend Features:
 
 - FAISS (Facebook AI Similarity Search) for efficient similarity search.
 - Pre-computed image embeddings for fast retrieval
-
+- Json data is stored and searched through elasticsearch
+- 
 Frontend Features: 
 - Responsive design using Flutter with cross-platform compatibility (iOS, Android, PC, Web)
 
 # Future plans: 
-With a larger dataset, data will be stored in MongoDB and support queries through ElasticSearch. Additional models and features will be incorporated to improve search accuracy. 
+Additional models and features will be incorporated to improve search accuracy. 
 
 
 
