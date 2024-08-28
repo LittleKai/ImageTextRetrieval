@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 
 class ImageDisplayPanel extends StatelessWidget {
-  final Function(String) onImageSelected;
+  final Function(Map<String, dynamic>) onImageSelected;
   final List<Map<String, dynamic>> searchResults;
+  final String baseUrl;
+  final int imageCount;
 
-  ImageDisplayPanel({
+  const ImageDisplayPanel({
+    Key? key,
     required this.onImageSelected,
     required this.searchResults,
-  });
+    required this.baseUrl,
+    required this.imageCount,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(4),
@@ -20,48 +25,77 @@ class ImageDisplayPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Search Results',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
+          Padding(
+            padding: EdgeInsets.only(left: 4, top: 4, bottom: 4),
+            child: Text(
+              'Search Results (${searchResults.length} images)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(
             child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                childAspectRatio: 1,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+                childAspectRatio: 16 / 11,
               ),
               itemCount: searchResults.length,
               itemBuilder: (context, index) {
                 final result = searchResults[index];
-                return Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () => onImageSelected(result['image_path']),
-                      child: Image.network(
-                        'https://loudly-exciting-sparrow.ngrok-free.app/image/${Uri.encodeComponent(result['filename'])}',
-                        fit: BoxFit.cover,
-                        width: 120,
-                        height: 120,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 120,
-                            height: 120,
-                            color: Colors.grey,
-                            child: Icon(Icons.error),
-                          );
-                        },
-                      ),
-                    ),
-                    Text(
-                      result['filename'],
-                      style: TextStyle(fontSize: 10),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                );
+                return _buildImageItem(result);
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageItem(Map<String, dynamic> result) {
+    final imageUrl = '$baseUrl/image/${Uri.encodeComponent(result['relative_path'])}';
+
+    return GestureDetector(
+      onTap: () => onImageSelected(result),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.error, color: Colors.red, size: 24),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          Text(
+            result['relative_path'],
+            style: const TextStyle(fontSize: 9),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),

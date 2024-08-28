@@ -6,6 +6,7 @@ import 'gender_panel.dart';
 import 'submission_panel.dart';
 import 'search_panel.dart';
 import 'image_display_panel.dart';
+import 'settings_manager.dart';
 
 class ImageRetrievalPage extends StatefulWidget {
   @override
@@ -13,17 +14,37 @@ class ImageRetrievalPage extends StatefulWidget {
 }
 
 class _ImageRetrievalPageState extends State<ImageRetrievalPage> {
-  List<bool> searchTypeSelection = [true, false, false]; // Clip, Sketch, All
-  List<bool> genderSelection = [false, false, false]; // Female, Male, Both
+  List<bool> searchTypeSelection = [true, false, false];
+  List<bool> genderSelection = [false, false, false];
   List<String> tags = [];
-  List<String> selectedImages = [];
+  List<Map<String, dynamic>> selectedImages = [];
   List<Map<String, dynamic>> searchResults = [];
+  String baseUrl = 'https://loudly-exciting-sparrow.ngrok-free.app';
+  int imageCount = 50;
+  String videoPath = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final url = await SettingsManager.getBaseUrl();
+    final count = await SettingsManager.getImageCount();
+    final path = await SettingsManager.getVideoPath();
+    setState(() {
+      baseUrl = url;
+      imageCount = count;
+      videoPath = path;
+    });
+  }
 
   Future<List<Map<String, dynamic>>> searchImages(String query) async {
     final response = await http.post(
-      Uri.parse('https://loudly-exciting-sparrow.ngrok-free.app/search'),
+      Uri.parse('$baseUrl/search'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'query': query, 'top_k': 20}),
+      body: json.encode({'query': query, 'top_k': imageCount}),
     );
 
     if (response.statusCode == 200) {
@@ -33,11 +54,75 @@ class _ImageRetrievalPageState extends State<ImageRetrievalPage> {
     }
   }
 
+  void _showSettingsDialog() {
+    TextEditingController _urlController = TextEditingController(text: baseUrl);
+    TextEditingController _countController = TextEditingController(text: imageCount.toString());
+    TextEditingController _videoPathController = TextEditingController(text: videoPath);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _urlController,
+                decoration: InputDecoration(labelText: 'Base URL'),
+              ),
+              TextField(
+                controller: _countController,
+                decoration: InputDecoration(labelText: 'Number of Images'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: _videoPathController,
+                decoration: InputDecoration(labelText: 'Video Folder Path'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () async {
+                await SettingsManager.setBaseUrl(_urlController.text);
+                await SettingsManager.setImageCount(int.parse(_countController.text));
+                await SettingsManager.setVideoPath(_videoPathController.text);
+                setState(() {
+                  baseUrl = _urlController.text;
+                  imageCount = int.parse(_countController.text);
+                  videoPath = _videoPathController.text;
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('IMAGE TEXT RETRIEVAL'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('IMAGE TEXT RETRIEVAL'),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: _showSettingsDialog,
+            ),
+          ],
+        ),
       ),
       body: Row(
         children: [
@@ -77,9 +162,11 @@ class _ImageRetrievalPageState extends State<ImageRetrievalPage> {
                   selectedImages: selectedImages,
                   onRemoveImage: (image) {
                     setState(() {
-                      selectedImages.remove(image);
+                      selectedImages.removeWhere((item) => item['relative_path'] == image['relative_path']);
                     });
                   },
+                  baseUrl: baseUrl,
+                  videoPath: videoPath,
                 ),
               ],
             ),
@@ -92,7 +179,6 @@ class _ImageRetrievalPageState extends State<ImageRetrievalPage> {
                   onSearchTypeSelectionChanged: (index, value) {
                     setState(() {
                       if (index == 2) {
-                        // "All" checkbox
                         searchTypeSelection = [value, value, value];
                       } else {
                         searchTypeSelection[index] = value;
@@ -111,14 +197,16 @@ class _ImageRetrievalPageState extends State<ImageRetrievalPage> {
                 ),
                 Expanded(
                   child: ImageDisplayPanel(
-                    onImageSelected: (filename) {
+                    onImageSelected: (imageInfo) {
                       setState(() {
-                        if (!selectedImages.contains(filename)) {
-                          selectedImages.add(filename);
+                        if (!selectedImages.any((item) => item['relative_path'] == imageInfo['relative_path'])) {
+                          selectedImages.add(imageInfo);
                         }
                       });
                     },
                     searchResults: searchResults,
+                    baseUrl: baseUrl,
+                    imageCount: imageCount,
                   ),
                 ),
               ],

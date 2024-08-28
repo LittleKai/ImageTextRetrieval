@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'image_retrieval_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Đảm bảo tất cả các plugin đã được khởi tạo
+  await SystemChannels.platform.invokeMethod<void>('SystemChrome.setPreferredOrientations', []);
+  // DartVLC.initialize();
   runApp(MyApp());
 }
 
