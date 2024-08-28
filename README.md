@@ -1,5 +1,5 @@
 # Image Text Retrieval
-![Demo Image 1](Demo/1.png)
+![Demo Image 1](figs/1.jfif)
 
 An image search application based on textual features input by users through the UI.
 
