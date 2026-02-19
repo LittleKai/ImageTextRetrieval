@@ -7,8 +7,6 @@ Users can filter the JSON information stored in the database, which was previous
 
 The information includes audio information, text, people, objects, location, and image descriptions.
 
-** Note: This project is still under development.
-
 # Features:
 
 **Image Text Retrieval System:**
